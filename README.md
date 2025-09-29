@@ -27,17 +27,19 @@ The goal is to **reduce delays, improve SLA compliance, and optimize resource al
 
 ### Run Locally
 ```bash
-git clone https://github.com/gortegam/lab-tat-optimization.git
+git clone https://github.com/gortegam/Lab-Turnaround-Time-TAT-Optimization
 cd lab-tat-optimization
 pip install -r requirements.txt
 streamlit run app.py
 ```
+
 The dashboard will launch at **http://localhost:8501**
 
 ### Live Demo
-👉 [**Try the Streamlit Dashboard**](https://gortegam-lab-tat-optimization.streamlit.app)
+👉 [**Try the Streamlit Dashboard**](https://lab-turnaround-time-tat-optimization-mq8z4mcrmhevfs4ig3ungl.streamlit.app)
 
 *(If inactive, fork this repo and deploy on your own Streamlit Cloud account.)*
+
 
 ---
 
