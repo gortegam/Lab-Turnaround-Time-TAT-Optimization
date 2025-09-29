@@ -31,6 +31,7 @@ git clone https://github.com/gortegam/lab-tat-optimization.git
 cd lab-tat-optimization
 pip install -r requirements.txt
 streamlit run app.py
+```
 The dashboard will launch at **http://localhost:8501**
 
 ### Live Demo
