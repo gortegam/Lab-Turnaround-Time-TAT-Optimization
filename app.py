@@ -71,6 +71,55 @@ else:
     col3.metric("SLA Hit Rate", f"{sla_rate:.1f}%")
 
     # ======================
+    # What-If Analysis
+    # ======================
+    st.subheader("⚙️ What-If Analysis")
+
+    sla_slider = st.sidebar.slider("SLA Threshold (minutes)", min_value=60, max_value=600, step=30, value=240)
+    pre_delay_factor = st.sidebar.slider("Pre-Analytical Delay Factor", min_value=0.5, max_value=1.5, step=0.1, value=1.0)
+
+    # Staffing scenario toggle
+    scenario = st.sidebar.radio(
+        "Staffing Scenario",
+        ["Baseline", "+1 Evening Tech", "Redistribute Night → Evening"]
+    )
+
+    # Adjust SLA and pre delay
+    filtered_df["sla_min_custom"] = filtered_df["sla_min"] * (sla_slider / 240)
+
+    # Apply pre-analytical delay factor
+    filtered_df["tat_total_custom"] = filtered_df["tat_total"] * pre_delay_factor
+
+    # Apply staffing adjustments (simple multipliers to total TAT as proxy)
+    if scenario == "+1 Evening Tech":
+        # assume ~10% reduction in evening TAT
+        mask_evening = filtered_df["shift"] == "Evening"
+        filtered_df.loc[mask_evening, "tat_total_custom"] *= 0.9
+
+    elif scenario == "Redistribute Night → Evening":
+        # assume evening improves slightly, night worsens slightly
+        mask_evening = filtered_df["shift"] == "Evening"
+        mask_night = filtered_df["shift"] == "Night"
+        filtered_df.loc[mask_evening, "tat_total_custom"] *= 0.92
+        filtered_df.loc[mask_night, "tat_total_custom"] *= 1.05
+
+    # Recalculate SLA hit
+    filtered_df["sla_hit_custom"] = (filtered_df["tat_total_custom"] <= filtered_df["sla_min_custom"]).astype(int)
+
+    # KPIs
+    median_tat_custom = filtered_df["tat_total_custom"].median()
+    p95_tat_custom = np.percentile(filtered_df["tat_total_custom"], 95)
+    sla_rate_custom = filtered_df["sla_hit_custom"].mean() * 100
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Median TAT (What-If)", f"{median_tat_custom:.1f}")
+    col2.metric("95th Percentile (What-If)", f"{p95_tat_custom:.1f}")
+    col3.metric("SLA Rate (What-If)", f"{sla_rate_custom:.1f}%")
+
+    st.markdown(f"**Scenario Applied:** {scenario}  |  SLA = {sla_slider} min  |  Pre-delay factor = {pre_delay_factor:.1f}x")
+
+
+    # ======================
     # Grouped Tables & Charts
     # ======================
 
